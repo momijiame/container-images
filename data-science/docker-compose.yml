@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  server:
+    image: example/data-science
+    build:
+      context: .
+    environment:
+      - USER_NAME
+      - USER_ID
+      - GROUP_ID
+      - PASSWORD_HASH
+      - JUPYTER_HOME=/mnt/jupyter
+    volumes:
+      - ./:/mnt/jupyter
+    ports:
+      - "127.0.0.1:22222:22"
+      - "127.0.0.1:8888:8888"
