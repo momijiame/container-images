@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -Ceux
+set -CEuxo pipefail
 
 assert_env_defined () {
   if [ ! -v $1 ]; then
@@ -13,12 +13,10 @@ assert_env_defined () {
 
   : "Add user if not exists" && {
     assert_env_defined USER_NAME
-    set +e  # avoid error check temporarily
-    id ${USER_NAME}  # existence check
-    if [ $? -ne 0 ]; then
+    # existence check
+    if ! id ${USER_NAME} ; then
       useradd -s /bin/bash -m ${USER_NAME}
     fi
-    set -e  # enable error check
   }
 
   : "Set home directory" && {

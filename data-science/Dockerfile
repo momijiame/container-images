@@ -1,7 +1,8 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ENV CONDA_HOME=/opt/conda \
-    CONDA_VENV_NAME=venv
+    CONDA_VENV_NAME=venv \
+    PYTHON_VERSION=3.8
 ENV USER_NAME \
     USER_ID \
     GROUP_ID \
@@ -11,9 +12,9 @@ ENV USER_NAME \
 RUN sed -i.bak -e "s%http://[^ ]\+%mirror://mirrors.ubuntu.com/mirrors.txt%g" /etc/apt/sources.list
 
 # Install prerequisite apt packages
-RUN apt update \
- && apt -yq dist-upgrade \
- && apt install -yq --no-install-recommends \
+RUN apt-get update \
+ && apt-get -yq dist-upgrade \
+ && apt-get install -yq --no-install-recommends \
       sudo \
       supervisor \
       ca-certificates \
@@ -21,7 +22,7 @@ RUN apt update \
       openssh-server \
       xserver-xorg \
       xauth \
- && apt clean \
+ && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
 # Install miniconda
@@ -35,18 +36,18 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 COPY pip-requirements.txt /tmp
 COPY conda-requirements.txt /tmp
 RUN . /etc/profile.d/conda.sh \
- && conda create -y -n ${CONDA_VENV_NAME} python=3.7 \
+ && conda create -y -n ${CONDA_VENV_NAME} python=${PYTHON_VERSION} \
  && conda activate ${CONDA_VENV_NAME} \
  && conda install -y --file /tmp/conda-requirements.txt \
  && pip install -r /tmp/pip-requirements.txt
 
 # Install extra apt packages
 COPY apt-requirements.txt /tmp
-RUN apt update \
- && apt -yq dist-upgrade \
- && apt install -yq --no-install-recommends \
+RUN apt-get update \
+ && apt-get -yq dist-upgrade \
+ && apt-get install -yq --no-install-recommends \
       $(cat /tmp/apt-requirements.txt) \
- && apt clean \
+ && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
 # Prepare OpenSSH server
